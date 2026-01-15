@@ -254,7 +254,7 @@
         <div class="logo">Maintenance App</div>
         <ul>
             <li><a href="/">Accueil</a></li>
-            <li><a href="/login.html">Connexion</a></li>
+            <li id="loginLink"><a href="/login.html">Connexion</a></li>
             <li><a href="/tasks.html">Taches</a></li>
         </ul>
         <div id="userInfo" class="user-info"></div>
@@ -306,10 +306,15 @@
         // Afficher les infos utilisateur si connecte
         function displayUserInfo() {
             const userInfo = document.getElementById('userInfo');
+            const loginLink = document.getElementById('loginLink');
             const user = localStorage.getItem('user');
             if (user) {
                 const userData = JSON.parse(user);
                 userInfo.innerHTML = `Connecte: ${userData.name}`;
+                // Cacher le lien de connexion si l'utilisateur est connecte
+                if (loginLink) {
+                    loginLink.style.display = 'none';
+                }
             }
         }
 
@@ -372,10 +377,15 @@
         // Afficher un etat vide
         function showEmptyState(message) {
             const taskList = document.getElementById('taskList');
+            const user = localStorage.getItem('user');
+            
+            // Ne pas afficher le bouton "Se connecter" si l'utilisateur est deja connecte
+            const loginButton = user ? '' : '<a href="/login.html" class="btn btn-primary">Se connecter</a>';
+            
             taskList.innerHTML = `
                 <div class="empty-state">
                     <p>${message}</p>
-                    <a href="/login.html" class="btn btn-primary">Se connecter</a>
+                    ${loginButton}
                 </div>
             `;
         }
