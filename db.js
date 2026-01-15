@@ -90,6 +90,45 @@ async function deleteMaintenanceLog(id) {
   return result.affectedRows;
 }
 
+// Fonction de connexion utilisateur
+async function loginUser(email, password) {
+  const query = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`;
+  const [rows] = await pool.query(query);
+  return rows[0];
+}
+
+// Fonctions pour les taches
+async function getAllTasks() {
+  const [rows] = await pool.query('SELECT * FROM tasks ORDER BY created_at DESC');
+  return rows;
+}
+
+async function getTaskById(id) {
+  const [rows] = await pool.query('SELECT * FROM tasks WHERE id = ?', [id]);
+  return rows[0];
+}
+
+async function createTask(userId, title, description, status = 'pending') {
+  const [result] = await pool.query(
+    'INSERT INTO tasks (user_id, title, description, status) VALUES (?, ?, ?, ?)',
+    [userId, title, description, status]
+  );
+  return result.insertId;
+}
+
+async function updateTask(id, title, description, status) {
+  const [result] = await pool.query(
+    'UPDATE tasks SET title = ?, description = ?, status = ? WHERE id = ?',
+    [title, description, status, id]
+  );
+  return result.affectedRows;
+}
+
+async function deleteTask(id) {
+  const [result] = await pool.query('DELETE FROM tasks WHERE id = ?', [id]);
+  return result.affectedRows;
+}
+
 module.exports = {
   pool,
   testConnection,
@@ -102,5 +141,11 @@ module.exports = {
   getMaintenanceLogById,
   createMaintenanceLog,
   updateMaintenanceLog,
-  deleteMaintenanceLog
+  deleteMaintenanceLog,
+  loginUser,
+  getAllTasks,
+  getTaskById,
+  createTask,
+  updateTask,
+  deleteTask
 };

@@ -2,12 +2,14 @@
 
 Projet de maintenance avec Docker, MySQL et Express.js.
 
-## 📋 Prérequis
+---
 
-- Docker et Docker Compose installés
+## Prerequis
+
+- Docker et Docker Compose installes
 - Port 3000 (app) et 3306 (MySQL) disponibles
 
-## 🚀 Démarrage rapide
+## Demarrage rapide
 
 ### 1. Cloner et installer
 
@@ -20,7 +22,7 @@ npm install
 ### 2. Lancer avec Docker
 
 ```bash
-# Démarrer les conteneurs (MySQL + Node.js)
+# Demarrer les conteneurs (MySQL + Node.js)
 docker-compose up -d
 
 # Ou avec rebuild
@@ -30,25 +32,32 @@ docker-compose up -d --build
 docker-compose logs -f
 ```
 
-### 3. Vérifier que tout fonctionne
+### 3. Acceder a l'application
 
-```bash
-# Health check
-curl http://localhost:3000/health
+- **Interface web**: http://localhost:3000
+- **API info**: http://localhost:3000/api
+- **Health check**: http://localhost:3000/health
 
-# Lister les utilisateurs
-curl http://localhost:3000/api/users
-```
+---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Health Check
-- `GET /health` - Vérifier l'état de l'application et la connexion DB
+- `GET /health` - Verifier l'etat de l'application et la connexion DB
+
+### Login
+- `POST /api/login` - Authentification
+  ```json
+  {
+    "email": "john@example.com",
+    "password": "password123"
+  }
+  ```
 
 ### Users
 - `GET /api/users` - Liste tous les utilisateurs
-- `GET /api/users/:id` - Détails d'un utilisateur
-- `POST /api/users` - Créer un utilisateur
+- `GET /api/users/:id` - Details d'un utilisateur
+- `POST /api/users` - Creer un utilisateur
   ```json
   {
     "name": "John Doe",
@@ -60,84 +69,90 @@ curl http://localhost:3000/api/users
 
 ### Maintenance Logs
 - `GET /api/maintenance` - Liste tous les logs
-- `GET /api/maintenance/:id` - Détails d'un log
-- `POST /api/maintenance` - Créer un log
+- `GET /api/maintenance/:id` - Details d'un log
+- `POST /api/maintenance` - Creer un log
   ```json
   {
     "title": "Maintenance serveur",
-    "description": "Description détaillée",
+    "description": "Description detaillee",
     "status": "pending"
   }
   ```
 - `PUT /api/maintenance/:id` - Modifier un log
 - `DELETE /api/maintenance/:id` - Supprimer un log
 
-## 🗄️ Base de données
+---
 
-La base de données MySQL est automatiquement initialisée avec :
-- 2 tables : `users` et `maintenance_logs`
-- Données de test pré-chargées
+## Base de donnees
 
-### Accéder à MySQL
+La base de donnees MySQL est automatiquement initialisee avec :
+- 2 tables : `users` et `tasks`
+- Donnees de test pre-chargees (4 utilisateurs)
+
+### Utilisateurs de test
+
+| Nom | Email | Mot de passe |
+|-----|-------|--------------|
+| John Smith | john@example.com | password123 |
+| Jane Doe | jane@example.com | securepass |
+| Bob Martin | bob@example.com | mypassword |
+| Dante Alighieri | dante@example.com | divinecomedy |
+
+### Acceder a MySQL
 
 ```bash
 # Connexion au conteneur MySQL
 docker exec -it maintenance_mysql mysql -u app_user -papp_password maintenance_db
 
-# Ou depuis l'extérieur
+# Ou depuis l'exterieur
 mysql -h 127.0.0.1 -P 3306 -u app_user -papp_password maintenance_db
 ```
 
-## 🛠️ Scripts disponibles
+---
+
+## Scripts disponibles
 
 ```bash
-npm start          # Démarrer l'app (production)
-npm run dev        # Démarrer avec nodemon (dev)
+npm start          # Demarrer l'app (production)
+npm run dev        # Demarrer avec nodemon (dev)
 npm run docker:up  # Lancer les conteneurs
-npm run docker:down # Arrêter les conteneurs
+npm run docker:down # Arreter les conteneurs
 npm run docker:build # Rebuild et lancer
 npm run docker:logs # Voir les logs
 ```
 
-## 🔧 Configuration
+---
 
-Modifier les variables dans `.env` :
-
-```env
-MYSQL_ROOT_PASSWORD=rootpassword
-MYSQL_DATABASE=maintenance_db
-MYSQL_USER=app_user
-MYSQL_PASSWORD=app_password
-NODE_ENV=development
-PORT=3000
-```
-
-## 📁 Structure du projet
+## Structure du projet
 
 ```
 maintenance-website/
 ├── docker-compose.yml    # Orchestration Docker
-├── Dockerfile           # Image Node.js
-├── init.sql            # Script d'init MySQL
-├── index.js            # Serveur Express
-├── db.js              # Connexion et requêtes MySQL
-├── .env               # Variables d'environnement
-├── .env.example       # Template
-└── package.json       # Dépendances npm
+├── Dockerfile            # Image Node.js
+├── init.sql              # Script d'init MySQL
+├── index.js              # Serveur Express + routes
+├── db.js                 # Connexion et requetes MySQL
+├── public/
+│   └── index.html        # Interface web de login
+├── .env                  # Variables d'environnement
+├── .env.example          # Template
+└── package.json          # Dependances npm
 ```
 
-## 🐛 Dépannage
+---
 
-### Les conteneurs ne démarrent pas
+## Depannage
+
+### Les conteneurs ne demarrent pas
 ```bash
 docker-compose down -v
 docker-compose up -d --build
 ```
 
 ### Erreur de connexion MySQL
-Attendez quelques secondes que MySQL soit prêt (healthcheck automatique).
+Attendez quelques secondes que MySQL soit pret (healthcheck automatique).
 
-### Port déjà utilisé
+### Port deja utilise
 Modifiez les ports dans `docker-compose.yml` :
 ```yaml
 ports:
@@ -145,35 +160,14 @@ ports:
   - "3307:3306"  # MySQL
 ```
 
-## 🧹 Nettoyage
+---
+
+## Nettoyage
 
 ```bash
-# Arrêter et supprimer les conteneurs
+# Arreter et supprimer les conteneurs
 docker-compose down
 
-# Supprimer aussi les volumes (⚠️ perte de données)
+# Supprimer aussi les volumes (perte de donnees)
 docker-compose down -v
-```
-
-## 📝 Exemples d'utilisation
-
-### Créer un utilisateur
-```bash
-curl -X POST http://localhost:3000/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Alice","email":"alice@test.com"}'
-```
-
-### Créer un log de maintenance
-```bash
-curl -X POST http://localhost:3000/api/maintenance \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Backup BDD","description":"Sauvegarde quotidienne","status":"completed"}'
-```
-
-### Modifier un statut
-```bash
-curl -X PUT http://localhost:3000/api/maintenance/1 \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Mise à jour","description":"Terminée","status":"completed"}'
 ```
