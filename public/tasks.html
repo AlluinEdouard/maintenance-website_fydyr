@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maintenance Website - Tâches</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        if (!localStorage.getItem('user')) {
+            window.location.replace('/index.html');
+        }
+    </script>
 </head>
 <body class="light-bg">
     <!-- ====================== NAVBAR ====================== -->
@@ -68,6 +73,10 @@
 
     <!-- ====================== JAVASCRIPT ====================== -->
     <script>
+        if (!localStorage.getItem('user')) {
+            window.location.replace('/index.html');
+        }
+
         // ====================== VARIABLES ======================
         let allTasks = [];          // Contient toutes les tâches chargées
         let currentFilter = 'all';  // Filtre actuel appliqué
@@ -192,6 +201,11 @@
             btn.addEventListener('click', () => filterTasks(btn.dataset.filter));
         });
 
+        // ====================== INITIALISATION ======================
+        document.addEventListener('DOMContentLoaded', () => {
+            displayUserInfo();
+            loadTasks();
+        });
     </script>
 </body>
 </html>
