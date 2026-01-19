@@ -10,6 +10,95 @@
             window.location.replace('/index.html');
         }
     </script>
+    <style>
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal .form-group {
+            margin-bottom: 20px;
+        }
+
+        .modal label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .modal input, .modal textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box;
+        }
+
+        .modal input:focus, .modal textarea:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+            outline: none;
+        }
+
+        .modal button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body class="light-bg">
     <!-- ====================== NAVBAR ====================== -->
@@ -54,12 +143,32 @@
             </div>
         </div>
 
+        
         <!-- FILTER BUTTONS -->
         <div class="filter-bar">
             <button class="filter-btn active" data-filter="all">Toutes</button>
             <button class="filter-btn" data-filter="pending">En attente</button>
             <button class="filter-btn" data-filter="in_progress">En cours</button>
             <button class="filter-btn" data-filter="completed">Terminées</button>
+        </div>
+        
+        <button class="btn btn-primary" id="newTaskBtn" style="margin-bottom: 20px;">Nouvelle tâche</button>
+        <div id="newTaskModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Créer une nouvelle tâche</h2>
+                <form id="newTaskForm">
+                    <div class="form-group">
+                        <label for="taskTitle">Titre</label>
+                        <input type="text" id="taskTitle" name="taskTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDescription">Description</label>
+                        <textarea id="taskDescription" name="taskDescription" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Créer la tâche</button>
+                </form>
+            </div>
         </div>
 
         <!-- TASK LIST -->
@@ -199,6 +308,62 @@
 
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => filterTasks(btn.dataset.filter));
+        });
+
+        // ====================== GESTION MODAL ======================
+        const modal = document.getElementById('newTaskModal');
+        const btn = document.getElementById('newTaskBtn');
+        const span = document.querySelector('#newTaskModal .close');
+
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // ====================== CREATION TACHE ======================
+        document.getElementById('newTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            
+            let userId = null;
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user) userId = user.id;
+            } catch(e) {}
+
+            try {
+                const response = await fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, description, status: 'pending', user_id: userId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    modal.style.display = "none";
+                    document.getElementById('newTaskForm').reset();
+                    loadTasks();
+                } else {
+                    alert('Erreur: ' + (result.message || 'Impossible de créer la tâche'));
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur serveur');
+            }
         });
 
         // ====================== INITIALISATION ======================
